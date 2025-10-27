@@ -1,0 +1,17 @@
+@layer base {
+    .debug {
+        @apply border-2 border-red-500;
+    }
+
+    .flex-container {
+        @apply flex w-full flex-col items-center py-4;
+    }
+
+    .row {
+        @apply flex flex-row items-center justify-center gap-2;
+    }
+
+    .col {
+        @apply flex w-full flex-col items-stretch;
+    }
+}
