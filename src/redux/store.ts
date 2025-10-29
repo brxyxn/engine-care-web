@@ -12,6 +12,7 @@ import {
 } from "redux-persist"
 import { counterSlice } from "@/redux/counter/counter-slice"
 import { customerSlice } from "@/redux/customers/customer-slice"
+import { logger } from "@/redux/middleware/logger"
 import storage from "@/redux/storage"
 import {
   Action,
@@ -43,8 +44,7 @@ export const store = configureStore({
       serializableCheck: {
         ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
       },
-    }),
-  // }).concat(quotesApiSlice.middleware), // what does it do?
+    }).concat(logger),
 })
 
 export const persistor = persistStore(store)
