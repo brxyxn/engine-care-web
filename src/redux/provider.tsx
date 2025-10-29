@@ -3,7 +3,7 @@
 import { ReactNode, useEffect, useRef } from "react"
 import { Provider } from "react-redux"
 import { PersistGate } from "redux-persist/integration/react"
-import Loading from "@/layout/loading"
+import Loader from "@/components/layouts/loader"
 import { AppStore, makeStore, persistor } from "@/redux/store"
 import { setupListeners } from "@reduxjs/toolkit/query"
 
@@ -31,7 +31,7 @@ export const ReduxProvider = ({ children }: Props) => {
   return (
     // eslint-disable-next-line react-hooks/refs
     <Provider store={storeRef.current}>
-      <PersistGate loading={<Loading />} persistor={persistor}>
+      <PersistGate loading={<Loader />} persistor={persistor}>
         {children}
       </PersistGate>
     </Provider>
