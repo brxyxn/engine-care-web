@@ -11,10 +11,11 @@ import {
   REHYDRATE,
 } from "redux-persist"
 import { counterSlice } from "@/redux/counter/counter-slice"
+import { customerSlice } from "@/redux/customers/customer-slice"
 import storage from "@/redux/storage"
 import {
   Action,
-  combineReducers,
+  combineSlices,
   configureStore,
   ThunkAction,
 } from "@reduxjs/toolkit"
@@ -26,12 +27,11 @@ const persistConfig = {
 
 // `combineSlices` automatically combines the reducers using
 // their `reducerPath`s, therefore we no longer need to call `combineReducers`.
-// export const rootReducer = combineSlices(counterSlice, quotesApiSlice);
-const rootReducer = combineReducers({
-  [counterSlice.reducerPath]: counterSlice.reducer,
-  // [quotesApiSlice.reducerPath]: quotesApiSlice.reducer,
-})
-// Infer the `RootState` type from the root reducer
+// const rootReducer = combineReducers({
+//   [counterSlice.reducerPath]: counterSlice.reducer,
+//   [customerSlice.reducerPath]: customerSlice.reducer,
+// })
+export const rootReducer = combineSlices(counterSlice, customerSlice)
 export type RootState = ReturnType<typeof rootReducer>
 
 const persistedReducer = persistReducer(persistConfig, rootReducer)
