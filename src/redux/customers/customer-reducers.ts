@@ -1,11 +1,11 @@
-import { initialState } from "@/redux/customers/initial-state"
-import { CustomerSlice } from "@/redux/customers/types"
+import { customerInitialState } from "@/redux/customers/customer-initial-state"
+import { CustomerSlice } from "@/redux/customers/customer-types"
 import { createAction, createReducer } from "@reduxjs/toolkit"
 
 const addCustomer = createAction("customers/addCustomer")
 
 export const customerReducers = createReducer<CustomerSlice>(
-  initialState,
+  customerInitialState,
   (builder) => {
     builder.addCase(addCustomer, (state) => {
       state.state = {

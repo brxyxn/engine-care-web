@@ -1,4 +1,4 @@
-import { CustomerSlice } from "@/redux/customers/types"
+import { CustomerSlice } from "@/redux/customers/customer-types"
 import { SliceStatus } from "@/redux/types"
 import { createAsyncThunk } from "@reduxjs/toolkit"
 

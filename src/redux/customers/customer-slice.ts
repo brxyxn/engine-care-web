@@ -1,10 +1,10 @@
 import { createAppSlice } from "@/redux/create-app-slice"
-import { initialState } from "@/redux/customers/initial-state"
+import { customerInitialState } from "@/redux/customers/customer-initial-state"
 
 // If you are not using async thunks you can use the standalone `createSlice`.
 export const customerSlice = createAppSlice({
   name: "customers",
-  initialState,
+  initialState: customerInitialState,
   reducers: (create) => ({
     addCustomer: create.reducer((state) => {
       state.state = {
@@ -23,7 +23,7 @@ export const customerSlice = createAppSlice({
   }),
   selectors: {
     selectCustomers: (counter) => counter.state,
-    selectCustomerID: (counter) => counter.status,
+    selectCustomerStatus: (counter) => counter.status,
   },
 })
 
@@ -31,4 +31,4 @@ export const customerSlice = createAppSlice({
 export const { setCustomers } = customerSlice.actions
 
 // Selectors returned by `slice.selectors` take the root state as their first argument.
-export const { selectCustomers } = customerSlice.selectors
+export const { selectCustomers, selectCustomerStatus } = customerSlice.selectors
