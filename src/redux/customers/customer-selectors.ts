@@ -1,4 +1,4 @@
-import { CustomerSlice } from "@/redux/customers/types"
+import { CustomerSlice } from "@/redux/customers/customer-types"
 import { RootState } from "@/redux/store"
 import { createSelector } from "@reduxjs/toolkit"
 
