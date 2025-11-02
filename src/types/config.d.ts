@@ -16,7 +16,7 @@ type User = {
   avatar: string
 }
 
-type UserConfigData = {
+type UserConfig = {
   user: User
   navMain: NavItem[]
   reports: NavItem[]

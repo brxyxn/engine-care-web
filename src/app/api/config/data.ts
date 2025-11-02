@@ -1,4 +1,4 @@
-export const data: UserConfigData = {
+export const data: UserConfig = {
   user: {
     id: "1",
     name: "enginecare",
