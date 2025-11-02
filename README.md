@@ -1,41 +1,72 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Engine Care Web Application
 
 ## Getting Started
 
-First, run the development server:
+### Requirements
+
+- Node.js v24
+
+PNPM v10
+
+If using Corepack to manage your package manager versions, enable PNPM with:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+corepack enable pnpm
+```
+
+Then set PNPM to version 10.20.0:
+
+```bash
+corepack use pnpm@10.20.0
+```
+
+If you don't have Corepack installed, refer to the [Corepack documentation](https://nodejs.org/api/corepack.html) for
+installation instructions.
+
+If you don't want to use Corepack:
+
+```bash
+npm install -g pnpm@10.20.0
+```
+
+<details>
+
+<summary>Teck Stack</summary>
+
+- Next.js 16 with the App Router
+- TypeScript
+- Redux Toolkit for state management
+- Tailwind CSS for styling
+- PNPM as the package manager
+- Turbopack for fast builds
+- ESLint for code quality
+- React Compiler for optimized React performance
+- Import aliases for cleaner imports
+- Prettier for code formatting
+- Husky for Git hooks
+- Lint-staged for pre-commit linting
+- Commitlint for commit message linting [todo]
+- Testing with Jest and React Testing Library [todo]
+
+</details>
+
+Install dependencies:
+
+```bash
+pnpm install
+```
+
+Run the development server:
+
+```bash
 pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+<details>
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-
-## Project Initialization
+<summary>Project initialization</summary>
 
 This project was initialized with:
 
@@ -43,8 +74,16 @@ This project was initialized with:
 npx create-next-app@latest --use-pnpm --src-dir --eslint --tailwind --ts --react-compiler --app --turbopack --import-alias="@/*" .
 ```
 
-Install missing dependencies for pnpm:
+</details>
+
+### Available Scripts
+
+Add a new slice:
 
 ```bash
-
+pnpm addSlice <slice-name>
 ```
+
+This command generates a new Redux slice with actions, reducers, selectors, thunks, types, and initial state files
+in the `redux` directory within its own folder. You will need to include the slice in the `slices.ts` file to register
+it with the store.
