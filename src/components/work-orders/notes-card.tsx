@@ -4,6 +4,7 @@ import { useState } from "react"
 import { format } from "date-fns"
 import {
   Card,
+  CardAction,
   CardContent,
   CardHeader,
   CardTitle,
@@ -62,24 +63,23 @@ export function NotesCard({ workOrders, staff }: NotesCardProps) {
 
   return (
     <Card>
-      <CardHeader className="flex-row items-center justify-between gap-2">
+      <CardHeader>
         <CardTitle>Work Order Notes</CardTitle>
         {openOrders.length > 0 && (
-          <Select
-            value={selected?.id ?? ""}
-            onValueChange={setSelectedId}
-          >
-            <SelectTrigger size="sm" className="w-36">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {openOrders.map((wo) => (
-                <SelectItem key={wo.id} value={wo.id}>
-                  {wo.number}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <CardAction>
+            <Select value={selected?.id ?? ""} onValueChange={setSelectedId}>
+              <SelectTrigger size="sm" className="w-36">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {openOrders.map((wo) => (
+                  <SelectItem key={wo.id} value={wo.id}>
+                    {wo.number}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </CardAction>
         )}
       </CardHeader>
       <CardContent className="flex flex-col gap-3">
