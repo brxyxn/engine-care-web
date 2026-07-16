@@ -1,9 +1,10 @@
+import { DashboardScreen } from "@/components/dashboard/dashboard-screen"
 import { RoleGate } from "@/components/layouts/role-gate"
 
 export default function OwnerPage() {
   return (
     <RoleGate role="owner">
-      <h1 className="text-2xl font-semibold">Dashboard Overview</h1>
+      <DashboardScreen />
     </RoleGate>
   )
 }

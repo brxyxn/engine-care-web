@@ -81,8 +81,9 @@
     --warning-foreground: oklch(0.24 0.05 70);
     --info: oklch(0.62 0.14 245);
     --info-foreground: oklch(0.985 0.005 245);
+    /* Series colors validated (CVD + contrast) against the light surface */
     --chart-1: oklch(0.627 0.17 149.2);
-    --chart-2: oklch(0.56 0.22 292);
+    --chart-2: oklch(0.541 0.247 293);
     --chart-3: oklch(0.68 0.13 230);
     --chart-4: oklch(0.72 0.16 70);
     --chart-5: oklch(0.6 0.2 15);
@@ -121,7 +122,8 @@
     --warning-foreground: oklch(0.2 0.05 75);
     --info: oklch(0.7 0.13 240);
     --info-foreground: oklch(0.15 0.03 240);
-    --chart-1: oklch(0.723 0.19 149.6);
+    /* Series colors validated (CVD + contrast) against the dark surface */
+    --chart-1: oklch(0.64 0.18 150);
     --chart-2: oklch(0.61 0.22 292);
     --chart-3: oklch(0.74 0.13 230);
     --chart-4: oklch(0.78 0.16 75);
