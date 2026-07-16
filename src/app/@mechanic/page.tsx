@@ -1,9 +1,10 @@
 import { RoleGate } from "@/components/layouts/role-gate"
+import { MyDayScreen } from "@/components/mechanic/my-day-screen"
 
 export default function MechanicPage() {
   return (
     <RoleGate role="mechanic">
-      <h1 className="text-2xl font-semibold">My Day</h1>
+      <MyDayScreen />
     </RoleGate>
   )
 }
