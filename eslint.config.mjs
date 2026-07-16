@@ -22,6 +22,7 @@ const eslintConfig = [
       "tailwind.config.mjs",
       "jest.config.mjs",
       "prettier.config.cjs",
+      "scripts/**",
       "src/redux/storage.ts",
     ],
   },
