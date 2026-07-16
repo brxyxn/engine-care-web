@@ -231,7 +231,8 @@ Backend rules the UI assumes: moving to `ready` implies `progressPct = 100`; mov
   "activeCustomers": { "value": 148, "delta": { "amount": 9, "label": "new this month", "direction": "up" } },
   "monthlyRevenue": { "value": 42600, "delta": { "amount": 8400, "label": "this period", "direction": "up" } },
   "bookings": [{ "week": "Week 1", "workOrders": 18, "appointments": 24 }],
-  "serviceRequests": [{ "serviceType": "engine_diagnostic", "pct": 32 }]
+  "serviceRequests": [{ "serviceType": "engine_diagnostic", "pct": 32 }],
+  "revenueTrend": [{ "week": "Week 1", "revenue": 8900 }]
 }
 ```
 

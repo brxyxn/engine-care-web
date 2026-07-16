@@ -21,6 +21,11 @@ type DashboardStats = {
     serviceType: ServiceType
     pct: number
   }[]
+  /** Weekly service revenue series for the revenue analytics card */
+  revenueTrend: {
+    week: string
+    revenue: number
+  }[]
 }
 
 type ActivityEntry = {

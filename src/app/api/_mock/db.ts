@@ -505,8 +505,8 @@ export const workOrders: WorkOrder[] = [
       { description: "Labor (0.8h)", qty: 1, unitPrice: 165 },
     ],
     estimateTotal: 312,
-    scheduledAt: daysAgo(8),
-    completedAt: daysAgo(8),
+    scheduledAt: daysAgo(5),
+    completedAt: daysAgo(5),
     notes: [],
     createdAt: daysAgo(9),
   },
@@ -871,6 +871,12 @@ export const dashboardStats: DashboardStats = {
     { serviceType: "general_repair", pct: 19 },
     { serviceType: "electrical", pct: 16 },
     { serviceType: "tire_rotation", pct: 9 },
+  ],
+  revenueTrend: [
+    { week: "Week 1", revenue: 8900 },
+    { week: "Week 2", revenue: 10400 },
+    { week: "Week 3", revenue: 9600 },
+    { week: "Week 4", revenue: 13700 },
   ],
 }
 
