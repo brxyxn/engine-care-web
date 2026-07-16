@@ -3,6 +3,7 @@
 import { CSSProperties, ReactNode } from "react"
 import { ThemeProvider } from "next-themes"
 import { SidebarProvider } from "@/components/ui/sidebar"
+import { Toaster } from "@/components/ui/sonner"
 import { ReduxProvider } from "@/redux/provider"
 
 type ProvidersProps = Readonly<{
@@ -27,6 +28,7 @@ export default function Providers({ children }: ProvidersProps) {
           }
         >
           {children}
+          <Toaster position="bottom-right" />
         </SidebarProvider>
       </ReduxProvider>
     </ThemeProvider>
