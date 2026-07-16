@@ -1,20 +1,14 @@
-import { CustomerSlice } from "@/redux/customers/customer-types"
-import { SliceStatus } from "@/redux/types"
+import { api } from "@/lib/api"
+import { CustomerFilters } from "@/redux/customers/customer-types"
 import { createAsyncThunk } from "@reduxjs/toolkit"
 
-export const fetchCustomers = createAsyncThunk<CustomerSlice>(
-  "customers/fetchCustomers",
-  async () => {
-    // Simulate an API call to fetch customers
-    return await new Promise<CustomerSlice>((resolve) =>
-      setTimeout(
-        () =>
-          resolve({
-            state: { id: "new-id", name: "My Name", email: "" },
-            status: SliceStatus.SUCCEEDED,
-          }),
-        1000
-      )
-    )
-  }
+export const fetchCustomers = createAsyncThunk(
+  "customers/fetch",
+  async (filters?: CustomerFilters) =>
+    api.get<Customer[]>("/customers", filters as Record<string, string>)
+)
+
+export const createCustomer = createAsyncThunk(
+  "customers/create",
+  async (input: NewCustomerInput) => api.post<Customer>("/customers", input)
 )

@@ -1,19 +1,23 @@
 import { RootState } from "@/redux/store"
 import type { Action, Dispatch, Middleware } from "@reduxjs/toolkit"
 
-export type AppMiddleware = Middleware<{}, RootState, Dispatch<Action>>
+export type AppMiddleware = Middleware<object, RootState, Dispatch<Action>>
 
-export const logger: AppMiddleware = (storeAPI) => (next) => (action: any) => {
+const actionType = (action: unknown): string =>
+  typeof action === "object" && action !== null && "type" in action
+    ? String((action as Action).type)
+    : "unknown"
+
+export const logger: AppMiddleware = (storeAPI) => (next) => (action) => {
   if (process.env.NODE_ENV === "production") {
     // Keep production quiet; remove this guard if you want prod logs.
     return next(action)
   }
 
   const prevState = storeAPI.getState()
-  // Group by action type for nice console output
-  // Using console.groupCollapsed avoids noisy logs
-  console.groupCollapsed(`🪵 action: ${action.type}`) // todo: check if we can get the action.type here, currently shows
-  // error since this action type is unknown
+  // Group by action type; groupCollapsed keeps the console tidy
+  /* eslint-disable no-console */
+  console.groupCollapsed(`🪵 action: ${actionType(action)}`)
   console.log("prev state:", prevState)
   console.log("action:", action)
 
@@ -22,6 +26,7 @@ export const logger: AppMiddleware = (storeAPI) => (next) => (action: any) => {
   const nextState = storeAPI.getState()
   console.log("next state:", nextState)
   console.groupEnd()
+  /* eslint-enable no-console */
 
   return result
 }
