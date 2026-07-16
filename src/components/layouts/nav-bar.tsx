@@ -1,8 +1,8 @@
 "use client"
 
-import { ReactNode } from "react"
+import { ComponentType } from "react"
 import Link from "next/link"
-import { Button } from "@/components/ui/button"
+import { usePathname } from "next/navigation"
 import {
   Sidebar,
   SidebarContent,
@@ -15,65 +15,71 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
+import { useAppSelector } from "@/redux/hooks"
+import { selectRole } from "@/redux/session/session-slice"
 import { IconInnerShadowTop } from "@tabler/icons-react"
 import {
   Car,
+  CalendarDays,
   ChevronLeft,
   ChevronRight,
+  ClipboardList,
   ClipboardPlus,
-  House,
-  MessagesSquare,
-  PlusIcon,
+  LayoutDashboard,
   UsersRound,
 } from "lucide-react"
 
 type NavItem = {
   title: string
   url: string
-  icon: ReactNode
+  icon: ComponentType<{ className?: string }>
+  roles: StaffRole[]
 }
 
-/*
-Home
-Work Orders
-Messages
-Customers
-Vehicles
-* */
-// nav items for mechanic users
 const navItems: NavItem[] = [
   {
-    title: "Home",
+    title: "Dashboard",
     url: "/",
-    icon: <House />,
-  },
-  {
-    title: "Work Orders",
-    url: "/work-orders",
-    icon: <ClipboardPlus />,
-  },
-  {
-    title: "Messages",
-    url: "/messages",
-    icon: <MessagesSquare />,
+    icon: LayoutDashboard,
+    roles: ["owner", "mechanic"],
   },
   {
     title: "Customers",
     url: "/customers",
-    icon: <UsersRound />,
+    icon: UsersRound,
+    roles: ["owner"],
   },
   {
     title: "Vehicles",
     url: "/vehicles",
-    icon: <Car />,
+    icon: Car,
+    roles: ["owner"],
+  },
+  {
+    title: "Work Orders",
+    url: "/work-orders",
+    icon: ClipboardList,
+    roles: ["owner", "mechanic"],
+  },
+  {
+    title: "Service",
+    url: "/service",
+    icon: CalendarDays,
+    roles: ["owner", "mechanic"],
   },
 ]
 
 export function NavBar() {
   const { toggleSidebar, open } = useSidebar()
+  const pathname = usePathname()
+  const role = useAppSelector(selectRole)
+
+  const visibleItems = navItems.filter(
+    (item) => role === null || item.roles.includes(role)
+  )
 
   return (
-    <Sidebar collapsible="icon" variant={"inset"}>
+    <Sidebar collapsible="icon" variant="inset">
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
@@ -81,60 +87,60 @@ export function NavBar() {
               asChild
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
-              <Link href="#">
-                <IconInnerShadowTop className="!size-5" />
-                <span className="text-base font-semibold">{"EngineCare"}</span>
+              <Link href="/">
+                <IconInnerShadowTop className="text-primary !size-5" />
+                <span className="text-base font-semibold">EngineCare</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        {/*  Add links here*/}
         <SidebarGroup>
           <SidebarGroupContent className="flex flex-col gap-2">
             <SidebarMenu>
-              <SidebarMenuItem className="flex items-center gap-2">
+              <SidebarMenuItem>
                 <SidebarMenuButton
-                  tooltip="Quick Create"
+                  asChild
+                  tooltip="New Work Order"
                   className="bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground min-w-8 duration-200 ease-linear"
                 >
-                  <ClipboardPlus />
-                  <span>New Work Order</span>
+                  <Link href="/work-orders?new=1">
+                    <ClipboardPlus />
+                    <span>New Work Order</span>
+                  </Link>
                 </SidebarMenuButton>
-                <Button
-                  size="icon"
-                  className="size-8 group-data-[collapsible=icon]:opacity-0"
-                  variant="outline"
-                >
-                  <PlusIcon />
-                  <span className="sr-only">New Work Order</span>
-                </Button>
               </SidebarMenuItem>
             </SidebarMenu>
 
-            {navItems.map((item) => (
-              <SidebarMenu key={item.title}>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild tooltip={item.title}>
+            <SidebarMenu>
+              {visibleItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton
+                    asChild
+                    tooltip={item.title}
+                    isActive={pathname === item.url}
+                  >
                     <Link href={item.url}>
-                      {item.icon}
+                      <item.icon />
                       <span>{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
-              </SidebarMenu>
-            ))}
+              ))}
+            </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild>
-              <Button onClick={toggleSidebar} variant={"secondary"}>
-                {open ? <ChevronLeft /> : <ChevronRight />}
-              </Button>
+            <SidebarMenuButton
+              onClick={toggleSidebar}
+              tooltip={open ? "Collapse sidebar" : "Expand sidebar"}
+            >
+              {open ? <ChevronLeft /> : <ChevronRight />}
+              <span>Collapse</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

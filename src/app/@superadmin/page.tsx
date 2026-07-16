@@ -1,5 +1,4 @@
-import * as React from "react"
-
+/** Superadmin experience is out of scope for phase 1. */
 export default function SuperAdminPage() {
-  return <div>SuperAdmin View</div>
+  return null
 }
