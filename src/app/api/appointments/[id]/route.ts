@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server"
-import { appointments } from "@/app/api/_mock/db"
+import { store } from "@/app/api/_mock/store"
 
 type Params = { params: Promise<{ id: string }> }
 
 /** Confirm, reschedule, or cancel an appointment. */
 export async function PATCH(request: NextRequest, { params }: Params) {
   const { id } = await params
-  const appointment = appointments.find((a) => a.id === id)
+  const appointment = store.appointments.find((a) => a.id === id)
   if (!appointment) {
     return NextResponse.json(
       { success: false, error: "Appointment not found" },
@@ -14,8 +14,6 @@ export async function PATCH(request: NextRequest, { params }: Params) {
     )
   }
   const patch = (await request.json()) as Partial<Appointment>
-  return NextResponse.json({
-    success: true,
-    data: { ...appointment, ...patch },
-  })
+  Object.assign(appointment, patch, { id: appointment.id })
+  return NextResponse.json({ success: true, data: appointment })
 }

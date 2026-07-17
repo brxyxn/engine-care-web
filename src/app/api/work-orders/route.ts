@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server"
-import { nextId, workOrders } from "@/app/api/_mock/db"
+import { nextId, nextWorkOrderNumber, store } from "@/app/api/_mock/store"
 
 export function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl
   const status = searchParams.get("status")
   const assignedMechanicId = searchParams.get("assignedMechanicId")
 
-  let data = workOrders
+  let data = store.workOrders
   if (status) {
     data = data.filter((wo) => wo.status === status)
   }
@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
   const now = new Date().toISOString()
   const workOrder: WorkOrder = {
     id: nextId("wo"),
-    number: `WO-${String(492 + Math.floor(Math.random() * 100)).padStart(4, "0")}`,
+    number: nextWorkOrderNumber(),
     customerId: input.customerId ?? "",
     vehicleId: input.vehicleId ?? "",
     assignedMechanicId: input.assignedMechanicId ?? null,
@@ -38,5 +38,6 @@ export async function POST(request: NextRequest) {
     notes: [],
     createdAt: now,
   }
+  store.workOrders.unshift(workOrder)
   return NextResponse.json({ success: true, data: workOrder }, { status: 201 })
 }

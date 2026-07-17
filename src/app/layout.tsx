@@ -1,7 +1,6 @@
 import { ReactNode } from "react"
 import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
-import { DashboardLayout } from "@/components/layouts/dashboard"
 import Providers from "@/providers"
 import "@/styles/globals.css"
 
@@ -23,28 +22,15 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-  superadmin,
-  owner,
-  mechanic,
 }: Readonly<{
   children: ReactNode
-  owner: ReactNode
-  mechanic: ReactNode
-  superadmin: ReactNode
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Providers>
-          <DashboardLayout>
-            {mechanic}
-            {owner}
-            {superadmin}
-            {children}
-          </DashboardLayout>
-        </Providers>
+        <Providers>{children}</Providers>
       </body>
     </html>
   )

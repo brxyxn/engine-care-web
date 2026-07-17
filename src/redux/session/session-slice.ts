@@ -1,6 +1,11 @@
 import { createAppSlice } from "@/redux/create-app-slice"
 import { sessionInitialState } from "@/redux/session/session-initial-state"
-import { fetchSession, switchRole } from "@/redux/session/session-thunks"
+import {
+  fetchSession,
+  login,
+  logout,
+  signup,
+} from "@/redux/session/session-thunks"
 import { SliceStatus } from "@/redux/types"
 
 export const sessionSlice = createAppSlice({
@@ -13,17 +18,25 @@ export const sessionSlice = createAppSlice({
         slice.status = SliceStatus.LOADING
       })
       .addCase(fetchSession.fulfilled, (slice, action) => {
-        // Keep a previously switched role across reloads (state is persisted)
-        if (!slice.state) {
-          slice.state = action.payload
-        }
+        slice.state = action.payload
         slice.status = SliceStatus.SUCCEEDED
       })
       .addCase(fetchSession.rejected, (slice) => {
+        // 401 → signed out
+        slice.state = null
         slice.status = SliceStatus.FAILED
       })
-      .addCase(switchRole.fulfilled, (slice, action) => {
+      .addCase(login.fulfilled, (slice, action) => {
         slice.state = action.payload
+        slice.status = SliceStatus.SUCCEEDED
+      })
+      .addCase(signup.fulfilled, (slice, action) => {
+        slice.state = action.payload
+        slice.status = SliceStatus.SUCCEEDED
+      })
+      .addCase(logout.fulfilled, (slice) => {
+        slice.state = null
+        slice.status = SliceStatus.FAILED
       })
   },
   selectors: {

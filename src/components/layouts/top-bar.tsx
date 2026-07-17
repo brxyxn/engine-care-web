@@ -12,8 +12,6 @@ import {
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
@@ -27,9 +25,11 @@ import {
 } from "@/redux/notifications/notifications-slice"
 import { fetchNotifications } from "@/redux/notifications/notifications-thunks"
 import { selectSession } from "@/redux/session/session-slice"
-import { switchRole } from "@/redux/session/session-thunks"
+import { logout } from "@/redux/session/session-thunks"
 import { SliceStatus } from "@/redux/types"
-import { Bell, Search } from "lucide-react"
+import { Bell, LogOut, Search } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { toast } from "sonner"
 
 const initials = (name: string) =>
   name
@@ -47,6 +47,7 @@ const roleLabels: Record<StaffRole, string> = {
 
 export function TopBar() {
   const dispatch = useAppDispatch()
+  const router = useRouter()
   const session = useAppSelector(selectSession)
   const notifications = useAppSelector(selectNotifications)
   const notificationsStatus = useAppSelector(selectNotificationsStatus)
@@ -57,6 +58,12 @@ export function TopBar() {
       dispatch(fetchNotifications())
     }
   }, [dispatch, notificationsStatus])
+
+  const onLogout = async () => {
+    await dispatch(logout())
+    toast.success("Signed out")
+    router.replace("/login")
+  }
 
   return (
     <header className="border-border/60 flex h-(--header-height) shrink-0 items-center gap-2 border-b px-4">
@@ -147,29 +154,19 @@ export function TopBar() {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
-            <DropdownMenuLabel>
-              {session?.shop.name ?? "EngineCare"}
+            <DropdownMenuLabel className="flex flex-col">
+              <span>{session?.user.name ?? "EngineCare"}</span>
+              <span className="text-muted-foreground text-xs font-normal">
+                {session?.shop.name}
+              </span>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuLabel className="text-muted-foreground text-xs font-normal">
-              View as (dev)
-            </DropdownMenuLabel>
-            <DropdownMenuRadioGroup
-              value={session?.user.role}
-              onValueChange={(value) =>
-                dispatch(switchRole(value as StaffRole))
-              }
+            <DropdownMenuItem
+              onClick={onLogout}
+              className="text-destructive focus:text-destructive"
             >
-              <DropdownMenuRadioItem value="owner">
-                Owner — Ray Delgado
-              </DropdownMenuRadioItem>
-              <DropdownMenuRadioItem value="mechanic">
-                Mechanic — Sarah Jenner
-              </DropdownMenuRadioItem>
-            </DropdownMenuRadioGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem disabled>
-              Sign out (coming with auth)
+              <LogOut />
+              Sign out
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
