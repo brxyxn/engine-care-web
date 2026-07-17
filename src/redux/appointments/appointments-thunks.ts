@@ -8,6 +8,13 @@ export const fetchAppointments = createAsyncThunk(
     api.get<Appointment[]>("/appointments", filters as Record<string, string>)
 )
 
+/** Book a new appointment. Server sets id + status: "pending". */
+export const createAppointment = createAsyncThunk(
+  "appointments/create",
+  async (input: Omit<Appointment, "id" | "status">) =>
+    api.post<Appointment>("/appointments", input)
+)
+
 /** Confirm, reschedule, or cancel. */
 export const updateAppointment = createAsyncThunk(
   "appointments/update",

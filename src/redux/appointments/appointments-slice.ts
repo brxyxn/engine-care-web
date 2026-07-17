@@ -1,5 +1,6 @@
 import { appointmentsInitialState } from "@/redux/appointments/appointments-initial-state"
 import {
+  createAppointment,
   fetchAppointments,
   updateAppointment,
 } from "@/redux/appointments/appointments-thunks"
@@ -27,6 +28,9 @@ export const appointmentsSlice = createAppSlice({
           slice.state?.map((a) =>
             a.id === action.payload.id ? action.payload : a
           ) ?? null
+      })
+      .addCase(createAppointment.fulfilled, (slice, action) => {
+        slice.state = [action.payload, ...(slice.state ?? [])]
       })
   },
   selectors: {
