@@ -307,7 +307,9 @@ function BookForm({
                 >
                   <FormControl>
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder="None" />
+                      <SelectValue
+                        placeholder={requireWorkOrder ? "Select" : "None"}
+                      />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
