@@ -28,11 +28,22 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { vehicleStatusLabels } from "@/lib/format"
 import { useAppDispatch } from "@/redux/hooks"
-import { createVehicle } from "@/redux/vehicles/vehicles-thunks"
+import {
+  createVehicle,
+  updateVehicle,
+} from "@/redux/vehicles/vehicles-thunks"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { z } from "zod"
+
+const vehicleStatuses: VehicleStatus[] = [
+  "active",
+  "in_shop",
+  "ready",
+  "for_sale",
+]
 
 const schema = z.object({
   customerId: z.string().min(1, "Pick the owner"),
@@ -45,41 +56,59 @@ const schema = z.object({
   engine: z.string().min(2, "e.g. 2.5L I4"),
   transmission: z.string().min(2, "e.g. Automatic"),
   fuelType: z.enum(["gasoline", "diesel", "hybrid", "electric"]),
+  status: z.enum(["active", "in_shop", "ready", "for_sale"]),
 })
 
 type FormValues = z.infer<typeof schema>
 
-export type AddVehicleDialogProps = {
+export type VehicleFormDialogProps = {
+  mode: "create" | "edit"
   customers: Customer[]
   trigger: ReactNode
+  vehicle?: Vehicle
 }
 
-export function AddVehicleDialog({ customers, trigger }: AddVehicleDialogProps) {
+export function VehicleFormDialog({
+  mode,
+  customers,
+  trigger,
+  vehicle,
+}: VehicleFormDialogProps) {
   const dispatch = useAppDispatch()
   const [open, setOpen] = useState(false)
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
-      customerId: "",
-      make: "",
-      model: "",
-      year: new Date().getFullYear(),
-      vin: "",
-      licensePlate: "",
-      mileage: 0,
-      engine: "",
-      transmission: "",
-      fuelType: "gasoline",
+      customerId: vehicle?.customerId ?? "",
+      make: vehicle?.make ?? "",
+      model: vehicle?.model ?? "",
+      year: vehicle?.year ?? new Date().getFullYear(),
+      vin: vehicle?.vin ?? "",
+      licensePlate: vehicle?.licensePlate ?? "",
+      mileage: vehicle?.mileage ?? 0,
+      engine: vehicle?.engine ?? "",
+      transmission: vehicle?.transmission ?? "",
+      fuelType: vehicle?.fuelType ?? "gasoline",
+      status: vehicle?.status ?? "active",
     },
   })
 
   const onSubmit = async (values: FormValues) => {
-    await dispatch(createVehicle(values)).unwrap()
-    toast.success("Vehicle added", {
-      description: `${values.make} ${values.model} is in the registry.`,
-    })
-    form.reset()
+    if (mode === "edit" && vehicle) {
+      await dispatch(
+        updateVehicle({ id: vehicle.id, patch: values })
+      ).unwrap()
+      toast.success("Vehicle updated", {
+        description: `${values.make} ${values.model} saved.`,
+      })
+    } else {
+      await dispatch(createVehicle(values)).unwrap()
+      toast.success("Vehicle added", {
+        description: `${values.make} ${values.model} is in the registry.`,
+      })
+      form.reset()
+    }
     setOpen(false)
   }
 
@@ -88,9 +117,13 @@ export function AddVehicleDialog({ customers, trigger }: AddVehicleDialogProps) 
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Add vehicle</DialogTitle>
+          <DialogTitle>
+            {mode === "edit" ? "Edit vehicle" : "Add vehicle"}
+          </DialogTitle>
           <DialogDescription>
-            Enter the details manually — VIN lookup arrives with the backend.
+            {mode === "edit"
+              ? "Update the details on file."
+              : "Enter the details manually — VIN lookup arrives with the backend."}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -104,10 +137,7 @@ export function AddVehicleDialog({ customers, trigger }: AddVehicleDialogProps) 
               render={({ field }) => (
                 <FormItem className="col-span-2">
                   <FormLabel>Owner</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    value={field.value}
-                  >
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select a customer" />
@@ -260,13 +290,41 @@ export function AddVehicleDialog({ customers, trigger }: AddVehicleDialogProps) 
                 </FormItem>
               )}
             />
+            <FormField
+              control={form.control}
+              name="status"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Status</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger className="w-full">
+                        <SelectValue />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {vehicleStatuses.map((status) => (
+                        <SelectItem key={status} value={status}>
+                          {vehicleStatusLabels[status]}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <DialogFooter className="col-span-2">
               <Button
                 type="submit"
                 disabled={form.formState.isSubmitting}
                 className="w-full"
               >
-                {form.formState.isSubmitting ? "Saving…" : "Save vehicle"}
+                {form.formState.isSubmitting
+                  ? "Saving…"
+                  : mode === "edit"
+                    ? "Save changes"
+                    : "Save vehicle"}
               </Button>
             </DialogFooter>
           </form>

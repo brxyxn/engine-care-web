@@ -1,8 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { AddVehicleDialog } from "@/components/vehicles/add-vehicle-dialog"
 import { VehicleCard } from "@/components/vehicles/vehicle-card"
+import { VehicleFormDialog } from "@/components/vehicles/vehicle-form-dialog"
 import { KpiCard } from "@/components/shared/kpi-card"
 import { PageHeader } from "@/components/shared/page-header"
 import { Button } from "@/components/ui/button"
@@ -103,7 +103,11 @@ export function VehiclesScreen() {
         title="Vehicles"
         description="Every car your shop knows about"
         actions={
-          <AddVehicleDialog customers={customers ?? []} trigger={addTrigger} />
+          <VehicleFormDialog
+            mode="create"
+            customers={customers ?? []}
+            trigger={addTrigger}
+          />
         }
       />
 
@@ -181,11 +185,13 @@ export function VehiclesScreen() {
                 ? (customerById.get(vehicle.customerId) ?? null)
                 : null
             }
+            customers={customers ?? []}
             onDelete={onDelete}
           />
         ))}
 
-        <AddVehicleDialog
+        <VehicleFormDialog
+          mode="create"
           customers={customers ?? []}
           trigger={
             <button

@@ -5,6 +5,7 @@ import {
   createVehicle,
   deleteVehicle,
   fetchVehicles,
+  updateVehicle,
 } from "@/redux/vehicles/vehicles-thunks"
 
 export const vehiclesSlice = createAppSlice({
@@ -25,6 +26,12 @@ export const vehiclesSlice = createAppSlice({
       })
       .addCase(createVehicle.fulfilled, (slice, action) => {
         slice.state = [action.payload, ...(slice.state ?? [])]
+      })
+      .addCase(updateVehicle.fulfilled, (slice, action) => {
+        slice.state =
+          slice.state?.map((v) =>
+            v.id === action.payload.id ? action.payload : v
+          ) ?? null
       })
       .addCase(deleteVehicle.fulfilled, (slice, action) => {
         slice.state =

@@ -13,6 +13,12 @@ export const createVehicle = createAsyncThunk(
   async (input: NewVehicleInput) => api.post<Vehicle>("/vehicles", input)
 )
 
+export const updateVehicle = createAsyncThunk(
+  "vehicles/update",
+  async ({ id, patch }: { id: string; patch: Partial<Vehicle> }) =>
+    api.patch<Vehicle>(`/vehicles/${id}`, patch)
+)
+
 export const deleteVehicle = createAsyncThunk(
   "vehicles/delete",
   async (id: string) => api.delete<{ id: string }>(`/vehicles/${id}`)

@@ -14,8 +14,9 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { VehicleFormDialog } from "@/components/vehicles/vehicle-form-dialog"
 import { formatCurrency, vehicleStatusLabels } from "@/lib/format"
-import { Car, Cog, Fuel, Gauge, Hash, Trash2, Zap } from "lucide-react"
+import { Car, Cog, Fuel, Gauge, Hash, Pencil, Trash2, Zap } from "lucide-react"
 
 const statusTones: Record<VehicleStatus, StatusTone> = {
   active: "muted",
@@ -27,10 +28,16 @@ const statusTones: Record<VehicleStatus, StatusTone> = {
 export type VehicleCardProps = {
   vehicle: Vehicle
   owner: Customer | null
+  customers: Customer[]
   onDelete: (vehicle: Vehicle) => void
 }
 
-export function VehicleCard({ vehicle, owner, onDelete }: VehicleCardProps) {
+export function VehicleCard({
+  vehicle,
+  owner,
+  customers,
+  onDelete,
+}: VehicleCardProps) {
   return (
     <Card className="overflow-hidden pt-0">
       <div className="from-secondary to-card relative flex h-36 items-center justify-center bg-gradient-to-b">
@@ -84,9 +91,17 @@ export function VehicleCard({ vehicle, owner, onDelete }: VehicleCardProps) {
         </dl>
 
         <div className="flex gap-2">
-          <Button className="flex-1" size="sm">
-            Edit
-          </Button>
+          <VehicleFormDialog
+            mode="edit"
+            vehicle={vehicle}
+            customers={customers}
+            trigger={
+              <Button className="flex-1" size="sm">
+                <Pencil />
+                Edit
+              </Button>
+            }
+          />
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <Button
