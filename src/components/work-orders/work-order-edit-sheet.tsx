@@ -1,6 +1,6 @@
 "use client"
 
-import { ReactNode, useState } from "react"
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -19,7 +19,6 @@ import {
   SheetFooter,
   SheetHeader,
   SheetTitle,
-  SheetTrigger,
 } from "@/components/ui/sheet"
 import {
   formatCurrency,
@@ -40,16 +39,17 @@ const serviceTypes = Object.keys(serviceTypeLabels) as ServiceType[]
 export type WorkOrderEditSheetProps = {
   workOrder: WorkOrder
   staff: StaffMember[]
-  trigger: ReactNode
+  open: boolean
+  onOpenChange: (open: boolean) => void
 }
 
 export function WorkOrderEditSheet({
   workOrder,
   staff,
-  trigger,
+  open,
+  onOpenChange,
 }: WorkOrderEditSheetProps) {
   const dispatch = useAppDispatch()
-  const [open, setOpen] = useState(false)
   const [saving, setSaving] = useState(false)
 
   const [title, setTitle] = useState(workOrder.title)
@@ -102,15 +102,14 @@ export function WorkOrderEditSheet({
         })
       ).unwrap()
       toast.success(`${workOrder.number} updated`)
-      setOpen(false)
+      onOpenChange(false)
     } finally {
       setSaving(false)
     }
   }
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
-      <SheetTrigger asChild>{trigger}</SheetTrigger>
+    <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="flex w-full flex-col gap-0 overflow-y-auto sm:max-w-md">
         <SheetHeader>
           <SheetTitle>

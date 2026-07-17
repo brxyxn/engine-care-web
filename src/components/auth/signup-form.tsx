@@ -15,6 +15,7 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import { getErrorMessage } from "@/lib/api"
 import { useAppDispatch, useAppSelector } from "@/redux/hooks"
 import { selectSession } from "@/redux/session/session-slice"
 import { signup } from "@/redux/session/session-thunks"
@@ -75,10 +76,7 @@ export function SignupForm() {
       router.replace("/")
     } catch (error) {
       form.setError("email", {
-        message:
-          error instanceof Error
-            ? error.message
-            : "Could not create the account.",
+        message: getErrorMessage(error, "Could not create the account."),
       })
     }
   }

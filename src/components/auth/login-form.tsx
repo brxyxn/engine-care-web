@@ -15,6 +15,7 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import { getErrorMessage } from "@/lib/api"
 import { useAppDispatch, useAppSelector } from "@/redux/hooks"
 import { selectSession } from "@/redux/session/session-slice"
 import { login } from "@/redux/session/session-thunks"
@@ -53,15 +54,12 @@ export function LoginForm() {
       router.replace("/")
     } catch (error) {
       form.setError("password", {
-        message:
-          error instanceof Error
-            ? error.message
-            : "Could not sign in. Try again.",
+        message: getErrorMessage(error, "Could not sign in. Try again."),
       })
     }
   }
 
-  const useDemo = (email: string) => {
+  const fillDemo = (email: string) => {
     form.setValue("email", email)
     form.setValue("password", "engine123")
   }
@@ -135,14 +133,14 @@ export function LoginForm() {
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
-            onClick={() => useDemo("ray@enginecare.app")}
+            onClick={() => fillDemo("ray@enginecare.app")}
             className="border-border hover:border-primary rounded-full border px-2.5 py-1"
           >
             Owner
           </button>
           <button
             type="button"
-            onClick={() => useDemo("sarah@enginecare.app")}
+            onClick={() => fillDemo("sarah@enginecare.app")}
             className="border-border hover:border-primary rounded-full border px-2.5 py-1"
           >
             Mechanic

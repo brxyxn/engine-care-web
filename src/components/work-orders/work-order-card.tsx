@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import { useDraggable } from "@dnd-kit/core"
 import { CSS } from "@dnd-kit/utilities"
 import { StatusBadge, StatusTone } from "@/components/shared/status-badge"
@@ -37,6 +38,7 @@ export function WorkOrderCard({
 }: WorkOrderCardProps) {
   const { attributes, listeners, setNodeRef, transform, isDragging } =
     useDraggable({ id: workOrder.id })
+  const [editOpen, setEditOpen] = useState(false)
 
   return (
     <div
@@ -58,21 +60,19 @@ export function WorkOrderCard({
             {priorityMeta[workOrder.priority].label}
           </StatusBadge>
           {/* Stop pointer-down so opening the editor never starts a drag */}
-          <WorkOrderEditSheet
-            workOrder={workOrder}
-            staff={staff}
-            trigger={
-              <Button
-                variant="ghost"
-                size="icon"
-                aria-label={`Edit ${workOrder.number}`}
-                className="text-muted-foreground hover:text-foreground size-6"
-                onPointerDown={(event) => event.stopPropagation()}
-              >
-                <Pencil className="size-3.5" />
-              </Button>
-            }
-          />
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label={`Edit ${workOrder.number}`}
+            className="text-muted-foreground hover:text-foreground size-6"
+            onPointerDown={(event) => event.stopPropagation()}
+            onClick={(event) => {
+              event.stopPropagation()
+              setEditOpen(true)
+            }}
+          >
+            <Pencil className="size-3.5" />
+          </Button>
         </div>
       </div>
       <p className="text-sm leading-snug font-medium">{workOrder.title}</p>
@@ -98,6 +98,13 @@ export function WorkOrderCard({
           {formatCurrency(workOrder.estimateTotal)}
         </span>
       </div>
+
+      <WorkOrderEditSheet
+        workOrder={workOrder}
+        staff={staff}
+        open={editOpen}
+        onOpenChange={setEditOpen}
+      />
     </div>
   )
 }
