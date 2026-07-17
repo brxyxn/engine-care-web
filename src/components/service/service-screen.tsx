@@ -78,7 +78,13 @@ export function ServiceScreen() {
       )}
 
       <div className="grid items-start gap-4 lg:grid-cols-[380px_1fr]">
-        <BookingCalendar appointments={appointments ?? []} />
+        <BookingCalendar
+          appointments={appointments ?? []}
+          customers={customers ?? []}
+          vehicles={vehicles ?? []}
+          workOrders={workOrders ?? []}
+          canBook
+        />
         <RepairStatusBoard
           workOrders={workOrders ?? []}
           vehicles={vehicles ?? []}

@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { format, isToday, isTomorrow } from "date-fns"
-import { StatusBadge, StatusTone } from "@/components/shared/status-badge"
+import { StatusBadge } from "@/components/shared/status-badge"
 import {
   Card,
   CardContent,
@@ -18,15 +18,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { appointmentTypeLabels } from "@/lib/format"
-
-const statusTones: Record<AppointmentStatus, StatusTone> = {
-  pending: "warning",
-  confirmed: "success",
-  completed: "muted",
-  cancelled: "destructive",
-  no_show: "destructive",
-}
+import {
+  appointmentStatusLabels,
+  appointmentStatusTones,
+  appointmentTypeLabels,
+} from "@/lib/format"
 
 const dayLabel = (date: Date) => {
   if (isToday(date)) return "Today"
@@ -120,10 +116,8 @@ export function UpcomingAppointments({
                     )}
                   </TableCell>
                   <TableCell className="text-right">
-                    <StatusBadge tone={statusTones[appointment.status]}>
-                      {appointment.status === "pending"
-                        ? "Pending"
-                        : "Confirmed"}
+                    <StatusBadge tone={appointmentStatusTones[appointment.status]}>
+                      {appointmentStatusLabels[appointment.status]}
                     </StatusBadge>
                   </TableCell>
                 </TableRow>

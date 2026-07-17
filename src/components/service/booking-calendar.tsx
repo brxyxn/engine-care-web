@@ -1,22 +1,44 @@
 "use client"
 
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { format, isSameDay } from "date-fns"
+import { Plus } from "lucide-react"
+import { AppointmentAgendaRow } from "@/components/service/appointment-agenda-row"
+import { AppointmentDialog } from "@/components/service/appointment-dialog"
+import { Button } from "@/components/ui/button"
+import { Calendar } from "@/components/ui/calendar"
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { Calendar } from "@/components/ui/calendar"
-import { cn } from "@/lib/utils"
 
 export type BookingCalendarProps = {
   appointments: Appointment[]
+  customers?: Customer[]
+  vehicles?: Vehicle[]
+  workOrders?: WorkOrder[]
+  canBook?: boolean
+  requireWorkOrder?: boolean
 }
 
-export function BookingCalendar({ appointments }: BookingCalendarProps) {
+export function BookingCalendar({
+  appointments,
+  customers = [],
+  vehicles = [],
+  workOrders = [],
+  canBook = false,
+  requireWorkOrder = false,
+}: BookingCalendarProps) {
   const [selected, setSelected] = useState<Date>(() => new Date())
+  const [bookOpen, setBookOpen] = useState(false)
+  const [rescheduling, setRescheduling] = useState<Appointment | null>(null)
+
+  const customerById = useMemo(
+    () => new Map(customers.map((c) => [c.id, c])),
+    [customers]
+  )
 
   const daySlots = appointments
     .filter((a) => isSameDay(new Date(a.scheduledAt), selected))
@@ -29,8 +51,14 @@ export function BookingCalendar({ appointments }: BookingCalendarProps) {
 
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Calendar Booking</CardTitle>
+        {canBook && (
+          <Button size="sm" onClick={() => setBookOpen(true)}>
+            <Plus className="size-4" />
+            Book
+          </Button>
+        )}
       </CardHeader>
       <CardContent className="flex flex-col gap-3">
         <Calendar
@@ -51,21 +79,39 @@ export function BookingCalendar({ appointments }: BookingCalendarProps) {
               ? "no bookings"
               : `${daySlots.length} booked`}
           </p>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-col gap-2">
             {daySlots.map((appointment) => (
-              <span
+              <AppointmentAgendaRow
                 key={appointment.id}
-                className={cn(
-                  "bg-chart-2/15 text-chart-2 rounded-full px-3 py-1.5 text-xs font-medium",
-                  appointment.status === "pending" && "opacity-70"
-                )}
-              >
-                {format(new Date(appointment.scheduledAt), "h:mm a")}
-              </span>
+                appointment={appointment}
+                customer={customerById.get(appointment.customerId)}
+                onReschedule={setRescheduling}
+              />
             ))}
           </div>
         </div>
       </CardContent>
+
+      {canBook && (
+        <AppointmentDialog
+          mode="book"
+          open={bookOpen}
+          onOpenChange={setBookOpen}
+          customers={customers}
+          vehicles={vehicles}
+          workOrders={workOrders}
+          defaultDate={selected}
+          requireWorkOrder={requireWorkOrder}
+        />
+      )}
+      {rescheduling && (
+        <AppointmentDialog
+          mode="reschedule"
+          appointment={rescheduling}
+          open={rescheduling !== null}
+          onOpenChange={(open) => !open && setRescheduling(null)}
+        />
+      )}
     </Card>
   )
 }

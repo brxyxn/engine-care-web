@@ -1,3 +1,5 @@
+import { StatusTone } from "@/components/shared/status-badge"
+
 const currency = new Intl.NumberFormat("en-US", {
   style: "currency",
   currency: "USD",
@@ -62,6 +64,22 @@ export const appointmentTypeLabels: Record<AppointmentType, string> = {
   pickup: "Pickup",
   inspection: "Inspection",
   service: "Service",
+}
+
+export const appointmentStatusLabels: Record<AppointmentStatus, string> = {
+  pending: "Pending",
+  confirmed: "Confirmed",
+  completed: "Completed",
+  cancelled: "Cancelled",
+  no_show: "No-show",
+}
+
+export const appointmentStatusTones: Record<AppointmentStatus, StatusTone> = {
+  pending: "warning",
+  confirmed: "success",
+  completed: "muted",
+  cancelled: "destructive",
+  no_show: "destructive",
 }
 
 export const interactionTypeLabels: Record<InteractionType, string> = {
