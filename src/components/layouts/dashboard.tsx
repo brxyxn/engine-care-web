@@ -4,6 +4,7 @@ import { ReactNode } from "react"
 import { NavBar } from "@/components/layouts/nav-bar"
 import { TopBar } from "@/components/layouts/top-bar"
 import { SidebarInset } from "@/components/ui/sidebar"
+import { WorkOrderQuickCreate } from "@/components/work-orders/work-order-quick-create"
 
 export type DashboardLayoutProps = {
   children: ReactNode
@@ -17,6 +18,7 @@ export async function DashboardLayout({ children }: DashboardLayoutProps) {
         <TopBar />
         <main className="flex-1 p-4 md:p-6">{children}</main>
       </SidebarInset>
+      <WorkOrderQuickCreate />
     </>
   )
 }

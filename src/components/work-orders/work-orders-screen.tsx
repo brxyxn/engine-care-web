@@ -1,18 +1,16 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
 import { KpiCard } from "@/components/shared/kpi-card"
 import { PageHeader } from "@/components/shared/page-header"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
-import { CreateWorkOrderDialog } from "@/components/work-orders/create-work-order-dialog"
 import { DocumentsCard } from "@/components/work-orders/documents-card"
 import { InvoicesList } from "@/components/work-orders/invoices-list"
 import { KanbanBoard } from "@/components/work-orders/kanban-board"
 import { MechanicPerformance } from "@/components/work-orders/mechanic-performance"
-import { NotesCard } from "@/components/work-orders/notes-card"
 import { RevenueAnalytics } from "@/components/work-orders/revenue-analytics"
+import { WorkOrderNotesBoard } from "@/components/work-orders/work-order-notes-board"
 import {
   useCustomers,
   useDashboard,
@@ -22,6 +20,8 @@ import {
   useWorkOrders,
 } from "@/hooks/use-data"
 import { formatCompactCurrency } from "@/lib/format"
+import { useAppDispatch } from "@/redux/hooks"
+import { openCreateWorkOrder } from "@/redux/ui/ui-slice"
 import {
   CircleCheck,
   ClipboardList,
@@ -33,8 +33,7 @@ import {
 const DAY = 24 * 60 * 60 * 1000
 
 export function WorkOrdersScreen() {
-  const router = useRouter()
-  const searchParams = useSearchParams()
+  const dispatch = useAppDispatch()
   const { workOrders } = useWorkOrders()
   const { vehicles } = useVehicles()
   const { customers } = useCustomers()
@@ -42,18 +41,8 @@ export function WorkOrdersScreen() {
   const { invoices } = useInvoices()
   const { stats } = useDashboard()
 
-  const [createOpen, setCreateOpen] = useState(
-    searchParams.get("new") === "1"
-  )
   // Reference time captured once per mount; keeps render pure
   const [now] = useState(() => Date.now())
-
-  const closeCreate = (open: boolean) => {
-    setCreateOpen(open)
-    if (!open && searchParams.get("new") === "1") {
-      router.replace("/work-orders")
-    }
-  }
 
   if (!workOrders) {
     return (
@@ -105,7 +94,7 @@ export function WorkOrdersScreen() {
         title="Work Orders"
         description="Pipeline from intake to delivery"
         actions={
-          <Button onClick={() => setCreateOpen(true)}>
+          <Button onClick={() => dispatch(openCreateWorkOrder())}>
             <Plus />
             New work order
           </Button>
@@ -156,18 +145,12 @@ export function WorkOrdersScreen() {
         </div>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="grid gap-4 lg:grid-cols-2">
         <InvoicesList invoices={invoices ?? []} />
-        <NotesCard workOrders={workOrders} staff={staff ?? []} />
         <DocumentsCard />
       </div>
 
-      <CreateWorkOrderDialog
-        open={createOpen}
-        onOpenChange={closeCreate}
-        customers={customers ?? []}
-        vehicles={vehicles ?? []}
-      />
+      <WorkOrderNotesBoard workOrders={workOrders} staff={staff ?? []} />
     </div>
   )
 }

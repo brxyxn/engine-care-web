@@ -2,22 +2,14 @@
 
 import { PageHeader } from "@/components/shared/page-header"
 import { Skeleton } from "@/components/ui/skeleton"
-import { KanbanBoard } from "@/components/work-orders/kanban-board"
-import { NotesCard } from "@/components/work-orders/notes-card"
-import {
-  useCustomers,
-  useStaff,
-  useVehicles,
-  useWorkOrders,
-} from "@/hooks/use-data"
+import { WorkOrderNotesBoard } from "@/components/work-orders/work-order-notes-board"
+import { useStaff, useWorkOrders } from "@/hooks/use-data"
 import { useAppSelector } from "@/redux/hooks"
 import { selectSession } from "@/redux/session/session-slice"
 
 export function MechanicWorkOrdersScreen() {
   const session = useAppSelector(selectSession)
   const { workOrders } = useWorkOrders()
-  const { vehicles } = useVehicles()
-  const { customers } = useCustomers()
   const { staff } = useStaff()
 
   if (!workOrders || !session) {
@@ -37,17 +29,9 @@ export function MechanicWorkOrdersScreen() {
     <div className="flex flex-col gap-6">
       <PageHeader
         title="My Work Orders"
-        description="Drag a card as the job moves forward"
+        description="Notes and findings per active job"
       />
-      <KanbanBoard
-        workOrders={mine}
-        vehicles={vehicles ?? []}
-        customers={customers ?? []}
-        staff={staff ?? []}
-      />
-      <div className="max-w-xl">
-        <NotesCard workOrders={mine} staff={staff ?? []} />
-      </div>
+      <WorkOrderNotesBoard workOrders={mine} staff={staff ?? []} />
     </div>
   )
 }

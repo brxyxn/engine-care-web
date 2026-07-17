@@ -69,7 +69,8 @@ export const createOwnerAccount = (input: {
 
   const session: Session = {
     user: { id: userId, name: input.name, role: "owner", avatarUrl: "" },
-    shop: { id: nextId("shop"), name: input.shopName },
+    // Fresh sign-ups start solo on the free Individual plan.
+    shop: { id: nextId("shop"), name: input.shopName, plan: "individual" },
   }
   registry.push({ email: input.email, password: input.password, session })
   return session

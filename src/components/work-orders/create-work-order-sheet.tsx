@@ -3,14 +3,6 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Button } from "@/components/ui/button"
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
-import {
   Form,
   FormControl,
   FormField,
@@ -26,42 +18,67 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet"
 import { serviceTypeLabels } from "@/lib/format"
-import { useAppDispatch } from "@/redux/hooks"
+import { useAppDispatch, useAppSelector } from "@/redux/hooks"
+import { selectSession } from "@/redux/session/session-slice"
 import { createWorkOrder } from "@/redux/work-orders/work-orders-thunks"
+import { selectOwnersWorkAsMechanics } from "@/redux/workspace/workspace-capabilities"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { z } from "zod"
 
 const serviceTypes = Object.keys(serviceTypeLabels) as ServiceType[]
+const UNASSIGNED = "unassigned"
 
 const schema = z.object({
   title: z.string().min(3, "Describe the job"),
   customerId: z.string().min(1, "Pick the customer"),
   vehicleId: z.string().min(1, "Pick the vehicle"),
-  serviceType: z.enum(
-    serviceTypes as [ServiceType, ...ServiceType[]]
-  ),
+  serviceType: z.enum(serviceTypes as [ServiceType, ...ServiceType[]]),
   priority: z.enum(["low", "normal", "high", "urgent"]),
   estimateTotal: z.coerce.number<number>().min(0),
+  assignedMechanicId: z.string(),
 })
 
 type FormValues = z.infer<typeof schema>
 
-export type CreateWorkOrderDialogProps = {
+export type CreateWorkOrderSheetProps = {
   open: boolean
   onOpenChange: (open: boolean) => void
   customers: Customer[]
   vehicles: Vehicle[]
+  staff: StaffMember[]
 }
 
-export function CreateWorkOrderDialog({
+export function CreateWorkOrderSheet({
   open,
   onOpenChange,
   customers,
   vehicles,
-}: CreateWorkOrderDialogProps) {
+  staff,
+}: CreateWorkOrderSheetProps) {
   const dispatch = useAppDispatch()
+  const session = useAppSelector(selectSession)
+  const ownersWork = useAppSelector(selectOwnersWorkAsMechanics)
+
+  // Owners who work as mechanics can be assigned; default a working owner's own
+  // new orders to themselves so a solo owner is ready to work immediately.
+  const assignable = staff.filter(
+    (s) => s.role === "mechanic" || (ownersWork && s.role === "owner")
+  )
+  const defaultAssignee =
+    ownersWork && session?.user.role === "owner"
+      ? session.user.id
+      : UNASSIGNED
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -72,6 +89,7 @@ export function CreateWorkOrderDialog({
       serviceType: "general_repair",
       priority: "normal",
       estimateTotal: 0,
+      assignedMechanicId: defaultAssignee,
     },
   })
 
@@ -81,7 +99,14 @@ export function CreateWorkOrderDialog({
     : vehicles
 
   const onSubmit = async (values: FormValues) => {
-    const created = await dispatch(createWorkOrder(values)).unwrap()
+    const { assignedMechanicId, ...rest } = values
+    const created = await dispatch(
+      createWorkOrder({
+        ...rest,
+        assignedMechanicId:
+          assignedMechanicId === UNASSIGNED ? undefined : assignedMechanicId,
+      })
+    ).unwrap()
     toast.success(`${created.number} created`, {
       description: "It starts in Intake — drag it forward as work begins.",
     })
@@ -90,18 +115,19 @@ export function CreateWorkOrderDialog({
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>New work order</DialogTitle>
-          <DialogDescription>
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent className="flex w-full flex-col gap-0 overflow-y-auto sm:max-w-md">
+        <SheetHeader>
+          <SheetTitle>New work order</SheetTitle>
+          <SheetDescription>
             Starts in Intake with the estimate attached.
-          </DialogDescription>
-        </DialogHeader>
+          </SheetDescription>
+        </SheetHeader>
+
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="flex flex-col gap-4"
+            className="flex flex-1 flex-col gap-4 px-4 pb-4"
           >
             <FormField
               control={form.control}
@@ -110,10 +136,7 @@ export function CreateWorkOrderDialog({
                 <FormItem>
                   <FormLabel>Job</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="Front brake pads + rotors"
-                      {...field}
-                    />
+                    <Input placeholder="Front brake pads + rotors" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -229,20 +252,49 @@ export function CreateWorkOrderDialog({
                 </FormItem>
               )}
             />
-            <DialogFooter>
-              <Button
-                type="submit"
-                disabled={form.formState.isSubmitting}
-                className="w-full"
-              >
-                {form.formState.isSubmitting
-                  ? "Creating…"
-                  : "Create work order"}
+
+            {ownersWork && (
+              <FormField
+                control={form.control}
+                name="assignedMechanicId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Assign to</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger className="w-full">
+                          <SelectValue />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value={UNASSIGNED}>Unassigned</SelectItem>
+                        {assignable.map((member) => (
+                          <SelectItem key={member.id} value={member.id}>
+                            {member.name}
+                            {member.role === "owner" ? " (Owner)" : ""}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+
+            <SheetFooter className="mt-auto px-0">
+              <Button type="submit" disabled={form.formState.isSubmitting}>
+                {form.formState.isSubmitting ? "Creating…" : "Create work order"}
               </Button>
-            </DialogFooter>
+              <SheetClose asChild>
+                <Button type="button" variant="outline">
+                  Cancel
+                </Button>
+              </SheetClose>
+            </SheetFooter>
           </form>
         </Form>
-      </DialogContent>
-    </Dialog>
+      </SheetContent>
+    </Sheet>
   )
 }

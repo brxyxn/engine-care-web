@@ -25,8 +25,9 @@ import {
   serviceTypeLabels,
   workOrderStatusLabels,
 } from "@/lib/format"
-import { useAppDispatch } from "@/redux/hooks"
+import { useAppDispatch, useAppSelector } from "@/redux/hooks"
 import { updateWorkOrder } from "@/redux/work-orders/work-orders-thunks"
+import { selectOwnersWorkAsMechanics } from "@/redux/workspace/workspace-capabilities"
 import { Plus, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -50,6 +51,7 @@ export function WorkOrderEditSheet({
   onOpenChange,
 }: WorkOrderEditSheetProps) {
   const dispatch = useAppDispatch()
+  const ownersWork = useAppSelector(selectOwnersWorkAsMechanics)
   const [saving, setSaving] = useState(false)
 
   const [title, setTitle] = useState(workOrder.title)
@@ -69,7 +71,9 @@ export function WorkOrderEditSheet({
       : [{ description: "", qty: 1, unitPrice: 0 }]
   )
 
-  const mechanics = staff.filter((s) => s.role === "mechanic")
+  const mechanics = staff.filter(
+    (s) => s.role === "mechanic" || (ownersWork && s.role === "owner")
+  )
   const total = lineItems.reduce(
     (sum, item) => sum + item.qty * item.unitPrice,
     0
@@ -201,6 +205,7 @@ export function WorkOrderEditSheet({
                   {mechanics.map((mechanic) => (
                     <SelectItem key={mechanic.id} value={mechanic.id}>
                       {mechanic.name}
+                      {mechanic.role === "owner" ? " (Owner)" : ""}
                     </SelectItem>
                   ))}
                 </SelectContent>

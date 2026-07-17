@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
+  DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
@@ -26,6 +27,8 @@ import {
 import { fetchNotifications } from "@/redux/notifications/notifications-thunks"
 import { selectSession } from "@/redux/session/session-slice"
 import { logout } from "@/redux/session/session-thunks"
+import { selectOwnersWorkAsMechanics } from "@/redux/workspace/workspace-capabilities"
+import { setOwnerWorksAsMechanic } from "@/redux/workspace/workspace-slice"
 import { SliceStatus } from "@/redux/types"
 import { Bell, LogOut, Search } from "lucide-react"
 import { useRouter } from "next/navigation"
@@ -45,10 +48,17 @@ const roleLabels: Record<StaffRole, string> = {
   superadmin: "Platform Admin",
 }
 
+const planLabels: Record<PlanTier, string> = {
+  individual: "Individual (Free)",
+  team: "Team",
+  enterprise: "Enterprise",
+}
+
 export function TopBar() {
   const dispatch = useAppDispatch()
   const router = useRouter()
   const session = useAppSelector(selectSession)
+  const ownersWork = useAppSelector(selectOwnersWorkAsMechanics)
   const notifications = useAppSelector(selectNotifications)
   const notificationsStatus = useAppSelector(selectNotificationsStatus)
   const unreadCount = useAppSelector(selectUnreadCount)
@@ -158,8 +168,31 @@ export function TopBar() {
               <span>{session?.user.name ?? "EngineCare"}</span>
               <span className="text-muted-foreground text-xs font-normal">
                 {session?.shop.name}
+                {session ? ` · ${planLabels[session.shop.plan]}` : ""}
               </span>
             </DropdownMenuLabel>
+
+            {session?.user.role === "owner" && (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuCheckboxItem
+                  checked={ownersWork}
+                  disabled={session.shop.plan === "individual"}
+                  onCheckedChange={(value) =>
+                    dispatch(setOwnerWorksAsMechanic(Boolean(value)))
+                  }
+                  onSelect={(event) => event.preventDefault()}
+                >
+                  Work as a mechanic
+                </DropdownMenuCheckboxItem>
+                {session.shop.plan === "individual" && (
+                  <p className="text-muted-foreground px-2 pb-1 text-xs">
+                    Solo plan — you run the whole shop.
+                  </p>
+                )}
+              </>
+            )}
+
             <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={onLogout}

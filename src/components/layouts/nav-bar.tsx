@@ -15,11 +15,14 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
-import { useAppSelector } from "@/redux/hooks"
+import { useAppDispatch, useAppSelector } from "@/redux/hooks"
 import { selectRole } from "@/redux/session/session-slice"
+import { openCreateWorkOrder } from "@/redux/ui/ui-slice"
+import { selectOwnerActsAsMechanic } from "@/redux/workspace/workspace-capabilities"
 import { IconInnerShadowTop } from "@tabler/icons-react"
 import {
   Car,
+  CalendarCheck,
   CalendarDays,
   ChevronLeft,
   ChevronRight,
@@ -27,6 +30,7 @@ import {
   ClipboardPlus,
   LayoutDashboard,
   UsersRound,
+  Wrench,
 } from "lucide-react"
 
 type NavItem = {
@@ -62,17 +66,26 @@ const navItems: NavItem[] = [
     roles: ["owner", "mechanic"],
   },
   {
-    title: "Service",
+    title: "Appointments",
     url: "/service",
     icon: CalendarDays,
     roles: ["owner", "mechanic"],
   },
 ]
 
+// Personal workbench, shown to an owner who also works as a mechanic. Gated by
+// capability rather than the role array above.
+const workbenchItems: Omit<NavItem, "roles">[] = [
+  { title: "My Day", url: "/my-day", icon: CalendarCheck },
+  { title: "My Work", url: "/my-work", icon: Wrench },
+]
+
 export function NavBar() {
   const { toggleSidebar, open } = useSidebar()
   const pathname = usePathname()
+  const dispatch = useAppDispatch()
   const role = useAppSelector(selectRole)
+  const ownerActsAsMechanic = useAppSelector(selectOwnerActsAsMechanic)
 
   const visibleItems = navItems.filter(
     (item) => role === null || item.roles.includes(role)
@@ -101,14 +114,12 @@ export function NavBar() {
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton
-                  asChild
+                  onClick={() => dispatch(openCreateWorkOrder())}
                   tooltip="New Work Order"
                   className="bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground min-w-8 duration-200 ease-linear"
                 >
-                  <Link href="/work-orders?new=1">
-                    <ClipboardPlus />
-                    <span>New Work Order</span>
-                  </Link>
+                  <ClipboardPlus />
+                  <span>New Work Order</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
@@ -129,6 +140,25 @@ export function NavBar() {
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
+
+            {ownerActsAsMechanic && (
+              <SidebarMenu>
+                {workbenchItems.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton
+                      asChild
+                      tooltip={item.title}
+                      isActive={pathname === item.url}
+                    >
+                      <Link href={item.url}>
+                        <item.icon />
+                        <span>{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            )}
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>

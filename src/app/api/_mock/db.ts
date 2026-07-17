@@ -964,7 +964,7 @@ export const serviceStats: ServiceStats = {
 export const sessions: Record<"owner" | "mechanic" | "superadmin", Session> = {
   owner: {
     user: { id: "stf_001", name: "Ray Delgado", role: "owner", avatarUrl: "" },
-    shop: { id: "shop_001", name: "EngineCare Garage" },
+    shop: { id: "shop_001", name: "EngineCare Garage", plan: "team" },
   },
   mechanic: {
     user: {
@@ -973,7 +973,7 @@ export const sessions: Record<"owner" | "mechanic" | "superadmin", Session> = {
       role: "mechanic",
       avatarUrl: "",
     },
-    shop: { id: "shop_001", name: "EngineCare Garage" },
+    shop: { id: "shop_001", name: "EngineCare Garage", plan: "team" },
   },
   superadmin: {
     user: {
@@ -982,7 +982,7 @@ export const sessions: Record<"owner" | "mechanic" | "superadmin", Session> = {
       role: "superadmin",
       avatarUrl: "",
     },
-    shop: { id: "shop_001", name: "EngineCare Garage" },
+    shop: { id: "shop_001", name: "EngineCare Garage", plan: "team" },
   },
 }
 

@@ -4,15 +4,14 @@ import { format } from "date-fns"
 import { UpcomingAppointments } from "@/components/dashboard/upcoming-appointments"
 import { KpiCard } from "@/components/shared/kpi-card"
 import { PageHeader } from "@/components/shared/page-header"
-import { StatusBadge, StatusTone } from "@/components/shared/status-badge"
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { Progress } from "@/components/ui/progress"
 import { Skeleton } from "@/components/ui/skeleton"
+import { KanbanBoard } from "@/components/work-orders/kanban-board"
 import {
   useAppointments,
   useCustomers,
@@ -20,23 +19,10 @@ import {
   useVehicles,
   useWorkOrders,
 } from "@/hooks/use-data"
-import {
-  formatCompactCurrency,
-  serviceTypeLabels,
-  workOrderStatusLabels,
-} from "@/lib/format"
+import { formatCompactCurrency } from "@/lib/format"
 import { useAppSelector } from "@/redux/hooks"
 import { selectSession } from "@/redux/session/session-slice"
-import { CircleCheck, ClipboardList, Gauge, Wrench } from "lucide-react"
-
-const statusTones: Record<WorkOrderStatus, StatusTone> = {
-  intake: "muted",
-  diagnostics: "info",
-  in_repair: "accent",
-  waiting_parts: "warning",
-  ready: "success",
-  delivered: "muted",
-}
+import { Bell, CircleCheck, ClipboardList, Gauge, History, Wrench } from "lucide-react"
 
 export function MyDayScreen() {
   const session = useAppSelector(selectSession)
@@ -58,14 +44,13 @@ export function MyDayScreen() {
   }
 
   const mine = workOrders.filter(
-    (wo) =>
-      wo.assignedMechanicId === session.user.id && wo.status !== "delivered"
+    (wo) => wo.assignedMechanicId === session.user.id
   )
+  const openCount = mine.filter((wo) => wo.status !== "delivered").length
   const myOrderIds = new Set(mine.map((wo) => wo.id))
   const myAppointments = (appointments ?? []).filter(
     (a) => a.workOrderId !== null && myOrderIds.has(a.workOrderId)
   )
-  const vehicleById = new Map((vehicles ?? []).map((v) => [v.id, v]))
 
   return (
     <div className="flex flex-col gap-6">
@@ -78,7 +63,7 @@ export function MyDayScreen() {
         <KpiCard
           icon={<ClipboardList />}
           label="My Open Orders"
-          value={String(mine.length)}
+          value={String(openCount)}
         />
         <KpiCard
           icon={<Gauge />}
@@ -102,49 +87,24 @@ export function MyDayScreen() {
         />
       </div>
 
+      <KanbanBoard
+        workOrders={mine}
+        vehicles={vehicles ?? []}
+        customers={customers ?? []}
+        staff={staff ?? []}
+      />
+
       <div className="grid items-start gap-4 lg:grid-cols-2">
+        {/* Notifications lands in a later phase — placeholder holds the slot. */}
         <Card>
           <CardHeader>
-            <CardTitle>My Active Work Orders</CardTitle>
+            <CardTitle>Notifications</CardTitle>
           </CardHeader>
-          <CardContent className="flex flex-col gap-3">
-            {mine.length === 0 && (
-              <p className="text-muted-foreground py-8 text-center text-sm">
-                Nothing assigned — check the pipeline for unclaimed orders.
-              </p>
-            )}
-            {mine.map((order) => {
-              const vehicle = vehicleById.get(order.vehicleId)
-              return (
-                <div
-                  key={order.id}
-                  className="bg-muted/40 flex flex-col gap-2 rounded-xl p-3.5"
-                >
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="data-id text-muted-foreground">
-                      {order.number}
-                    </span>
-                    <StatusBadge tone={statusTones[order.status]}>
-                      {workOrderStatusLabels[order.status]}
-                    </StatusBadge>
-                  </div>
-                  <p className="text-sm font-medium">{order.title}</p>
-                  <p className="text-muted-foreground text-xs">
-                    {vehicle
-                      ? `${vehicle.year} ${vehicle.make} ${vehicle.model}`
-                      : "Vehicle TBD"}
-                    {" · "}
-                    {serviceTypeLabels[order.serviceType]}
-                  </p>
-                  <div className="flex items-center gap-2">
-                    <Progress value={order.progressPct} className="h-1.5" />
-                    <span className="text-muted-foreground text-xs tabular-nums">
-                      {order.progressPct}%
-                    </span>
-                  </div>
-                </div>
-              )
-            })}
+          <CardContent>
+            <div className="text-muted-foreground flex flex-col items-center gap-2 py-8 text-center text-sm">
+              <Bell className="size-6" />
+              Alerts and reminders land here soon.
+            </div>
           </CardContent>
         </Card>
 
@@ -155,6 +115,19 @@ export function MyDayScreen() {
           limit={6}
         />
       </div>
+
+      {/* Recent Activity is planned for the next phase. */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Recent Activity</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-muted-foreground flex flex-col items-center gap-2 py-8 text-center text-sm">
+            <History className="size-6" />
+            Your recent activity timeline is coming soon.
+          </div>
+        </CardContent>
+      </Card>
     </div>
   )
 }
