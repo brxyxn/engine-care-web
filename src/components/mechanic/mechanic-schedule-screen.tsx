@@ -46,7 +46,13 @@ export function MechanicScheduleScreen() {
         description="Your bookings and today's tickets"
       />
       <div className="grid items-start gap-4 lg:grid-cols-[380px_1fr]">
-        <BookingCalendar appointments={myAppointments} />
+        <BookingCalendar
+          appointments={myAppointments}
+          customers={customers ?? []}
+          vehicles={vehicles ?? []}
+          workOrders={mine}
+          canBook
+        />
         <TicketsTable
           workOrders={mine}
           customers={customers ?? []}
