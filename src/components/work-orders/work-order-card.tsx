@@ -3,9 +3,12 @@
 import { useDraggable } from "@dnd-kit/core"
 import { CSS } from "@dnd-kit/utilities"
 import { StatusBadge, StatusTone } from "@/components/shared/status-badge"
+import { WorkOrderEditSheet } from "@/components/work-orders/work-order-edit-sheet"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Button } from "@/components/ui/button"
 import { formatCurrency, initials, serviceTypeLabels } from "@/lib/format"
 import { cn } from "@/lib/utils"
+import { Pencil } from "lucide-react"
 
 const priorityMeta: Record<
   WorkOrderPriority,
@@ -22,6 +25,7 @@ export type WorkOrderCardProps = {
   vehicle: Vehicle | null
   customer: Customer | null
   mechanic: StaffMember | null
+  staff: StaffMember[]
 }
 
 export function WorkOrderCard({
@@ -29,6 +33,7 @@ export function WorkOrderCard({
   vehicle,
   customer,
   mechanic,
+  staff,
 }: WorkOrderCardProps) {
   const { attributes, listeners, setNodeRef, transform, isDragging } =
     useDraggable({ id: workOrder.id })
@@ -48,9 +53,27 @@ export function WorkOrderCard({
         <span className="data-id text-muted-foreground">
           {workOrder.number}
         </span>
-        <StatusBadge tone={priorityMeta[workOrder.priority].tone}>
-          {priorityMeta[workOrder.priority].label}
-        </StatusBadge>
+        <div className="flex items-center gap-1">
+          <StatusBadge tone={priorityMeta[workOrder.priority].tone}>
+            {priorityMeta[workOrder.priority].label}
+          </StatusBadge>
+          {/* Stop pointer-down so opening the editor never starts a drag */}
+          <WorkOrderEditSheet
+            workOrder={workOrder}
+            staff={staff}
+            trigger={
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label={`Edit ${workOrder.number}`}
+                className="text-muted-foreground hover:text-foreground size-6"
+                onPointerDown={(event) => event.stopPropagation()}
+              >
+                <Pencil className="size-3.5" />
+              </Button>
+            }
+          />
+        </div>
       </div>
       <p className="text-sm leading-snug font-medium">{workOrder.title}</p>
       <p className="text-muted-foreground text-xs">
