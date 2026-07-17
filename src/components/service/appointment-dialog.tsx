@@ -1,5 +1,6 @@
 "use client"
 
+import { useMemo } from "react"
 import { format } from "date-fns"
 import { CalendarIcon } from "lucide-react"
 import { useForm } from "react-hook-form"
@@ -70,12 +71,25 @@ export function splitDateTime(iso: string): { date: Date; time: string } {
 type AppointmentDialogProps = {
   open: boolean
   onOpenChange: (open: boolean) => void
-  customers: Customer[]
-  vehicles: Vehicle[]
-  workOrders: WorkOrder[]
 } & (
-  | { mode: "book"; defaultDate?: Date; appointment?: never }
-  | { mode: "reschedule"; appointment: Appointment; defaultDate?: never }
+  | {
+      mode: "book"
+      customers: Customer[]
+      vehicles: Vehicle[]
+      workOrders: WorkOrder[]
+      defaultDate?: Date
+      requireWorkOrder?: boolean
+      appointment?: never
+    }
+  | {
+      mode: "reschedule"
+      appointment: Appointment
+      customers?: never
+      vehicles?: never
+      workOrders?: never
+      defaultDate?: never
+      requireWorkOrder?: never
+    }
 )
 
 export function AppointmentDialog(props: AppointmentDialogProps) {
@@ -95,28 +109,35 @@ export function AppointmentDialog(props: AppointmentDialogProps) {
 
 // ---- Book ------------------------------------------------------------------
 
-const bookSchema = z.object({
-  customerId: z.string().min(1, "Pick the customer"),
-  vehicleId: z.string().min(1, "Pick the vehicle"),
-  type: z.enum(appointmentTypes as [AppointmentType, ...AppointmentType[]]),
-  workOrderId: z.string(),
-  date: z.date(),
-  time: z.string().min(1, "Pick a time"),
-  durationMin: z.coerce.number<number>().min(5),
-})
-
-type BookValues = z.infer<typeof bookSchema>
-
 function BookForm({
   onOpenChange,
   customers,
   vehicles,
   workOrders,
   defaultDate,
+  requireWorkOrder = false,
 }: Extract<AppointmentDialogProps, { mode: "book" }>) {
   const dispatch = useAppDispatch()
+  const schema = useMemo(
+    () =>
+      z.object({
+        customerId: z.string().min(1, "Pick the customer"),
+        vehicleId: z.string().min(1, "Pick the vehicle"),
+        type: z.enum(
+          appointmentTypes as [AppointmentType, ...AppointmentType[]]
+        ),
+        workOrderId: requireWorkOrder
+          ? z.string().min(1, "Link a work order")
+          : z.string(),
+        date: z.date(),
+        time: z.string().min(1, "Pick a time"),
+        durationMin: z.coerce.number<number>().min(5),
+      }),
+    [requireWorkOrder]
+  )
+  type BookValues = z.infer<typeof schema>
   const form = useForm<BookValues>({
-    resolver: zodResolver(bookSchema),
+    resolver: zodResolver(schema),
     defaultValues: {
       customerId: "",
       vehicleId: "",
@@ -273,14 +294,26 @@ function BookForm({
             name="workOrderId"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Link work order (optional)</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
+                <FormLabel>
+                  {requireWorkOrder
+                    ? "Link work order"
+                    : "Link work order (optional)"}
+                </FormLabel>
+                <Select
+                  onValueChange={(v) =>
+                    field.onChange(v === "none" ? "" : v)
+                  }
+                  value={field.value === "" ? "none" : field.value}
+                >
                   <FormControl>
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="None" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
+                    {!requireWorkOrder && (
+                      <SelectItem value="none">None</SelectItem>
+                    )}
                     {workOrders.map((wo) => (
                       <SelectItem key={wo.id} value={wo.id}>
                         {wo.number} — {wo.title}

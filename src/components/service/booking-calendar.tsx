@@ -20,6 +20,7 @@ export type BookingCalendarProps = {
   vehicles?: Vehicle[]
   workOrders?: WorkOrder[]
   canBook?: boolean
+  requireWorkOrder?: boolean
 }
 
 export function BookingCalendar({
@@ -28,6 +29,7 @@ export function BookingCalendar({
   vehicles = [],
   workOrders = [],
   canBook = false,
+  requireWorkOrder = false,
 }: BookingCalendarProps) {
   const [selected, setSelected] = useState<Date>(() => new Date())
   const [bookOpen, setBookOpen] = useState(false)
@@ -99,6 +101,7 @@ export function BookingCalendar({
           vehicles={vehicles}
           workOrders={workOrders}
           defaultDate={selected}
+          requireWorkOrder={requireWorkOrder}
         />
       )}
       {rescheduling && (
@@ -107,9 +110,6 @@ export function BookingCalendar({
           appointment={rescheduling}
           open={rescheduling !== null}
           onOpenChange={(open) => !open && setRescheduling(null)}
-          customers={customers}
-          vehicles={vehicles}
-          workOrders={workOrders}
         />
       )}
     </Card>

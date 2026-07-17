@@ -52,6 +52,7 @@ export function MechanicScheduleScreen() {
           vehicles={vehicles ?? []}
           workOrders={mine}
           canBook
+          requireWorkOrder
         />
         <TicketsTable
           workOrders={mine}

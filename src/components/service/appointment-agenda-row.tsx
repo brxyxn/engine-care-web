@@ -74,7 +74,6 @@ export function AppointmentAgendaRow({
     } catch (error) {
       toast.error(getErrorMessage(error, "Could not cancel"))
     }
-    setCancelOpen(false)
   }
 
   return (
