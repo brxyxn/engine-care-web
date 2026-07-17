@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
-import { invoices } from "@/app/api/_mock/db"
+import { store } from "@/app/api/_mock/store"
 
 export function GET() {
-  return NextResponse.json({ success: true, data: invoices })
+  return NextResponse.json({ success: true, data: store.invoices })
 }

@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server"
-import { vehicles } from "@/app/api/_mock/db"
+import { store } from "@/app/api/_mock/store"
 
 type Params = { params: Promise<{ id: string }> }
 
 export async function GET(_request: NextRequest, { params }: Params) {
   const { id } = await params
-  const vehicle = vehicles.find((v) => v.id === id)
+  const vehicle = store.vehicles.find((v) => v.id === id)
   if (!vehicle) {
     return NextResponse.json(
       { success: false, error: "Vehicle not found" },
@@ -17,7 +17,7 @@ export async function GET(_request: NextRequest, { params }: Params) {
 
 export async function PATCH(request: NextRequest, { params }: Params) {
   const { id } = await params
-  const vehicle = vehicles.find((v) => v.id === id)
+  const vehicle = store.vehicles.find((v) => v.id === id)
   if (!vehicle) {
     return NextResponse.json(
       { success: false, error: "Vehicle not found" },
@@ -25,10 +25,15 @@ export async function PATCH(request: NextRequest, { params }: Params) {
     )
   }
   const patch = (await request.json()) as Partial<Vehicle>
-  return NextResponse.json({ success: true, data: { ...vehicle, ...patch } })
+  Object.assign(vehicle, patch, { id: vehicle.id })
+  return NextResponse.json({ success: true, data: vehicle })
 }
 
 export async function DELETE(_request: NextRequest, { params }: Params) {
   const { id } = await params
+  const index = store.vehicles.findIndex((v) => v.id === id)
+  if (index !== -1) {
+    store.vehicles.splice(index, 1)
+  }
   return NextResponse.json({ success: true, data: { id } })
 }

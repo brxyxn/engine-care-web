@@ -93,6 +93,7 @@ export function KanbanBoard({
                       ? (staffById.get(workOrder.assignedMechanicId) ?? null)
                       : null
                   }
+                  staff={staff}
                 />
               ))}
               {columnOrders.length === 0 && (

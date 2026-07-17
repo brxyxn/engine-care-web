@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { nextId, vehicles } from "@/app/api/_mock/db"
+import { nextId, store } from "@/app/api/_mock/store"
 
 export function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl
@@ -7,7 +7,7 @@ export function GET(request: NextRequest) {
   const make = searchParams.get("make")
   const q = searchParams.get("q")?.toLowerCase()
 
-  let data = vehicles
+  let data = store.vehicles
   if (status) {
     data = data.filter((v) => v.status === status)
   }
@@ -40,6 +40,11 @@ export async function POST(request: NextRequest) {
     status: "active",
     listPrice: null,
     lastServiceAt: null,
+  }
+  store.vehicles.unshift(vehicle)
+  const owner = store.customers.find((c) => c.id === input.customerId)
+  if (owner && !owner.vehicleIds.includes(vehicle.id)) {
+    owner.vehicleIds.push(vehicle.id)
   }
   return NextResponse.json({ success: true, data: vehicle }, { status: 201 })
 }

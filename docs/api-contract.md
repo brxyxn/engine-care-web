@@ -18,14 +18,24 @@ The frontend defines this contract; the Go backend implements it. Every endpoint
 - Money values are numbers in whole currency units (USD). The Go backend may switch to integer cents; if so, the frontend will adapt in one place.
 - IDs are opaque strings (`cus_001`, `wo_482`). Human-readable numbers (`WO-0482`, `INV-2026-042`) are display fields, not identifiers.
 - List endpoints accept optional query filters listed per endpoint. Unknown params are ignored. Pagination (`?page=&limit=`) is reserved and not yet consumed by the UI — lists are currently small.
-- Mock behavior note: the Next mocks are **stateless** — `POST`/`PATCH`/`DELETE` return the would-be result without persisting. The Go backend must persist.
+- Mock behavior note: the Next mocks are **stateful within a running server process** — `POST`/`PATCH`/`DELETE` mutate an in-memory store, so changes persist across requests until the server restarts. There is no cross-process durability; the Go backend provides the real database.
 
 ## Auth & session
 
-Phase 1 has no login flow. The frontend expects a session endpoint; auth (JWT/cookie) is the Go team's call and will be layered onto these routes.
+Cookie-based session. `POST /api/auth/login` (and `/signup`) sets an httpOnly
+`ec_session` cookie; `GET /api/session` reads it and returns the current user, or
+`401` when signed out. The mock stores the user id in the cookie in plaintext —
+the Go backend should issue a signed token (JWT or opaque session id) instead,
+keeping the same cookie name and the same `Session` response shape. All
+authenticated endpoints should require a valid cookie; the mock does not yet
+enforce this on resource routes.
 
-### `GET /api/session`
-Current user + shop context.
+### `POST /api/auth/login`
+Body `{ email, password }`. Sets the session cookie and returns the `Session`.
+`401` on bad credentials, `400` on missing fields.
+
+Demo credentials (mock only): `ray@enginecare.app` / `engine123` (owner),
+`sarah@enginecare.app` / `engine123` (mechanic).
 
 ```json
 {
@@ -37,10 +47,20 @@ Current user + shop context.
 }
 ```
 
-`role`: `"owner" | "mechanic" | "superadmin"`. The UI renders a different experience per role (owner: full app; mechanic: My Day / their work orders / schedule).
+### `POST /api/auth/signup`
+Body `{ name, email, password, shopName }`. Creates a shop-owner account (and a
+staff member for the owner), sets the cookie, returns the `Session` (201).
+`409` when the email is already registered.
 
-### `POST /api/session/role` *(dev-only, not for production)*
-Body `{ "role": "mechanic" }` → returns the mock session for that role. Exists only so the UI role-switcher works before auth lands. The Go backend should NOT implement this; real role comes from the authenticated user.
+### `POST /api/auth/logout`
+Clears the session cookie. Returns `{ success: true, data: null }`.
+
+### `GET /api/session`
+Current user + shop context from the cookie. `401` when unauthenticated.
+
+`role`: `"owner" | "mechanic" | "superadmin"`. The UI renders a different
+experience per role (owner: full app; mechanic: My Day / their work orders /
+schedule).
 
 ## Customers
 

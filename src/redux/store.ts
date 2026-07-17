@@ -7,6 +7,9 @@ import storage from "@/redux/storage"
 const persistConfig = {
   key: "root",
   storage,
+  // Session comes from the auth cookie via /api/session on every boot; never
+  // persist it, or a signed-out reload would still look authenticated.
+  blacklist: ["session"],
 }
 
 export const rootReducer = combineSlices(...allSlices)

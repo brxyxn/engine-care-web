@@ -2,7 +2,6 @@
 
 import { ReactNode } from "react"
 import { NavBar } from "@/components/layouts/nav-bar"
-import { SessionBoot } from "@/components/layouts/session-boot"
 import { TopBar } from "@/components/layouts/top-bar"
 import { SidebarInset } from "@/components/ui/sidebar"
 
@@ -13,7 +12,6 @@ export type DashboardLayoutProps = {
 export async function DashboardLayout({ children }: DashboardLayoutProps) {
   return (
     <>
-      <SessionBoot />
       <NavBar />
       <SidebarInset>
         <TopBar />

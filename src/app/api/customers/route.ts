@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server"
-import { customers, nextId } from "@/app/api/_mock/db"
+import { nextId, store } from "@/app/api/_mock/store"
 
 export function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl
   const status = searchParams.get("status")
   const q = searchParams.get("q")?.toLowerCase()
 
-  let data = customers
+  let data = store.customers
   if (status) {
     data = data.filter((c) => c.status === status)
   }
@@ -35,5 +35,6 @@ export async function POST(request: NextRequest) {
     vehicleIds: [],
     createdAt: new Date().toISOString(),
   }
+  store.customers.unshift(customer)
   return NextResponse.json({ success: true, data: customer }, { status: 201 })
 }
